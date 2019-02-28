@@ -29,6 +29,5 @@ class Main {
             e.printStackTrace();
         }
 
-//        service.readInputFile("a_exam[");
     }
 }

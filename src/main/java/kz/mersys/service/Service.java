@@ -10,13 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Service {
-    private String a;
+    private String someValue;
 
     public void readInputFile(Path path) {
         System.out.printf("readInputFile: %s \n", path.getFileName().toString());
+
+        //TODO read input file and assign constraints
         try (BufferedReader br = Files.newBufferedReader(path)) {
             String[] given = br.readLine().split(" ");
-            a = given[0];
+            someValue = given[0];
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -24,8 +26,12 @@ public class Service {
     }
 
     public List<Object> process() {
+        System.out.printf("process: %s\n", someValue);
+
         List<Object> list = new ArrayList<>();
-        System.out.printf("process: %s\n", a);
+        //TODO some really cool algorithm
+
+        list.add(new Object()); // dummy data
         return list;
     }
 
@@ -39,6 +45,7 @@ public class Service {
         }
 
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            //TODO write data to output file
             if (items != null) {
                 writer.write(String.format("%d", items.size()));
                 writer.newLine();
