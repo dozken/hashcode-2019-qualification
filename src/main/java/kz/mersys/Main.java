@@ -20,7 +20,7 @@ class Main {
                     path -> path.toString().endsWith(".txt"))
                     .forEach(path -> {
                         service.readInputFile(path);
-                        Slideshow slideshow = service.process();
+                        Slideshow slideshow = service.prepareSlideshowB();
                         service.writeOutputFile(outputPath.resolve(path.getFileName()), slideshow);
                         System.out.println();
                     });
