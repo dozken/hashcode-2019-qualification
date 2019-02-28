@@ -5,7 +5,6 @@ import kz.mersys.service.Service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 class Main {
 
@@ -17,11 +16,11 @@ class Main {
             Path outputPath = Paths.get("src", "main", "resources", "out");
 
             Files.newDirectoryStream(inputPath,
-                    path -> path.toString().endsWith(".in"))
+                    path -> path.toString().endsWith(".txt"))
                     .forEach(path -> {
                         service.readInputFile(path);
-                        List<Object> list = service.process();
-                        service.writeOutputFile(outputPath.resolve(path.getFileName()), list);
+//                        List<Ph> list = service.process();
+//                        service.writeOutputFile(outputPath.resolve(path.getFileName()), list);
                         System.out.println();
                     });
 
