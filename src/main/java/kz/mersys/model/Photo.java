@@ -1,11 +1,14 @@
 package kz.mersys.model;
 
 import java.util.Arrays;
+import java.util.List;
+
+import static java.util.stream.Collectors.joining;
 
 public class Photo {
     private String orientation;
     private int tagSize;
-    private String[] tags;
+    private List<String> tags;
 
     public String getOrientation() {
         return orientation;
@@ -23,17 +26,17 @@ public class Photo {
         this.tagSize = tagSize;
     }
 
-    public String[] getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
 
     @Override
     public String toString() {
-        return String.format("%s %d %s", orientation, tagSize, Arrays.toString(tags));
+        return String.format("%s %d %s", orientation, tagSize, tags.stream().collect(joining(" ")));
     }
 }

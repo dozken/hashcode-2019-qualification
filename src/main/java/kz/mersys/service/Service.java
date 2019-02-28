@@ -27,10 +27,10 @@ public class Service {
                 Photo photo = new Photo();
                 photo.setOrientation(line[0]);
                 photo.setTagSize(Integer.parseInt(line[1]));
-                String[] tags = new String[photo.getTagSize()];
+                List<String> tags = new ArrayList<>();
 
                 for (int j = 0; j < photo.getTagSize(); j++) {
-                    tags[j] = line[2 + j];
+                    tags.add(line[2 + j]);
                 }
 
                 photo.setTags(tags);
