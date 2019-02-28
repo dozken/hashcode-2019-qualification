@@ -143,7 +143,7 @@ public class Service {
         
         Photo photo = photos.remove(0);
         Slide firstSlide = new Slide();
-        firstSlide.photoIndexes.add(0);
+        firstSlide.photoIndexes.add(photo.index);
         slideshow.slides.add(firstSlide);
 
         
@@ -184,7 +184,7 @@ public class Service {
 		
 		Photo photo = photos.remove(0);
         Slide firstSlide = new Slide();
-        firstSlide.photoIndexes.add(0);
+        firstSlide.photoIndexes.add(photo.index);
         slideshow.slides.add(firstSlide);
 
         long score = 0;
@@ -199,8 +199,6 @@ public class Service {
                     maxIdx = i;
                 }
             }
-            if (maxIdx < 0)
-            	System.out.println();
             Photo nextPhoto = photos.remove(maxIdx);
             score += maxInterestFactor;
             
