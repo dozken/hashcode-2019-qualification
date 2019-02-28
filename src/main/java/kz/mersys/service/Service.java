@@ -2,6 +2,7 @@ package kz.mersys.service;
 
 
 import kz.mersys.model.Photo;
+import kz.mersys.model.Slideshow;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,15 +26,15 @@ public class Service {
             for (int i = 0; i < photoSize; i++) {
                 String[] line = br.readLine().split(" ");
                 Photo photo = new Photo();
-                photo.setOrientation(line[0]);
-                photo.setTagSize(Integer.parseInt(line[1]));
+                photo.orientation = line[0];
+                photo.tagSize = Integer.parseInt(line[1]);
                 List<String> tags = new ArrayList<>();
 
-                for (int j = 0; j < photo.getTagSize(); j++) {
+                for (int j = 0; j < photo.tagSize; j++) {
                     tags.add(line[2 + j]);
                 }
 
-                photo.setTags(tags);
+                photo.tags = tags;
 
                 photos.add(photo);
             }
@@ -46,17 +47,21 @@ public class Service {
     }
 
 
-    public List<Photo> process() {
+    public Slideshow process() {
         System.out.printf("process: \n");
 
-        List<Photo> list = photos;
+
+        Slideshow slideshow = new Slideshow();
+        slideshow.slideCount = 3;
+        slideshow.slides = new ArrayList<>();
+
 
         //TODO some really cool algorithm
 
-        return list;
+        return slideshow;
     }
 
-    public void writeOutputFile(Path path, List<Object> items) {
+    public void writeOutputFile(Path path, Slideshow slideshow) {
         System.out.printf("writeOutputFile: %s \n", path.getFileName().toString());
 
         try {
@@ -84,5 +89,8 @@ public class Service {
     	// TODO
     	return 0;
     }
+
+
+    // horizontal get max interest point
 
 }
