@@ -140,43 +140,102 @@ public class Service {
     public Slideshow prepareSlideshowB() {
         Slideshow slideshow = new Slideshow();
         photos = photos.stream().filter(x -> x.orientation.equals("H")).collect(toList());
-
+        
         Photo photo = photos.remove(0);
         Slide firstSlide = new Slide();
         firstSlide.photoIndexes.add(0);
         slideshow.slides.add(firstSlide);
 
-        int maxInterestFactor = 0;
-        int interestIndex = 0;
+        
+        
         long score = 0;
 
-        while (!photos.isEmpty()|| photos.size() != 2) {
+        while (!photos.isEmpty()) {
+        	int maxInterestFactor = -1;
+        	int maxIdx = -1;
             for (int i = 0; i < photos.size(); i++) {
                 int interestFactor = getInterestFactor(photo, photos.get(i));
                 if (maxInterestFactor < interestFactor) {
-                    maxInterestFactor = Math.max(maxInterestFactor, interestFactor);
-                    interestIndex = photos.get(i).index;
+                    maxInterestFactor = interestFactor;
+                    maxIdx = i;
                 }
             }
-
+            Photo nextPhoto = photos.remove(maxIdx);
             score += maxInterestFactor;
-
-            int finalInterestIndex = interestIndex;
-
-            Optional<Photo> first = photos.stream()
-                    .filter(photo1 -> photo1.index == finalInterestIndex)
-                    .findFirst();
-            if (first.isPresent()) {
-                photo = first.get();
-                photos.removeIf(p -> p.index == finalInterestIndex);
-
-                Slide slide = new Slide();
-                slide.photoIndexes.add(interestIndex);
-                slideshow.slides.add(slide);
-            }
-
+            
+            Slide slide = new Slide();
+            slide.photoIndexes.add(nextPhoto.index);
+            slideshow.slides.add(slide);
+            
+            photo = nextPhoto;
+            System.out.println(score);
         }
-
+        System.out.println(score);
         return slideshow;
     }
+
+	public Slideshow prepareSlideshowC() {
+		Slideshow slideshow = new Slideshow();
+		List<Photo> photosH = photos.stream().filter(x -> x.orientation.equals("H")).collect(toList());
+		List<Photo> photosDoubleV = getPhotosDoubleV();
+
+		Photo photo = photos.remove(0);
+		Slide firstSlide = new Slide();
+		firstSlide.photoIndexes.add(0);
+		slideshow.slides.add(firstSlide);
+
+		int maxInterestFactor = 0;
+		int interestIndex = 0;
+		long score = 0;
+
+		while (photos.isEmpty()) {
+			for (int i = 0; i < photos.size(); i++) {
+				int interestFactor = getInterestFactor(photo, photos.get(i));
+				if (maxInterestFactor < interestFactor) {
+					maxInterestFactor = Math.max(maxInterestFactor, interestFactor);
+					interestIndex = i;
+				}
+			}
+
+			score = maxInterestFactor;
+			photo = photos.remove(interestIndex);
+
+			Slide slide = new Slide();
+			slide.photoIndexes.add(interestIndex);
+			slideshow.slides.add(slide);
+		}
+
+		return slideshow;
+	}
+
+	private List<Photo> getPhotosDoubleV() {
+		List<Photo> photosV = photos.stream().filter(x -> x.orientation.equals("V")).collect(toList());
+		List<Photo> result = new ArrayList<>();
+		while (photosV.size() > 1) {
+			int maxSize = 0;
+			int maxIdx = 0;
+			Photo photo = photosV.remove(0);
+			Set<String> tags = new HashSet<>();
+			for (int i = 0; i < photosV.size(); i++) {
+				tags = getUnionSize(photo, photosV.get(i));
+				if (maxSize < tags.size()) {
+					maxSize = tags.size();
+					maxIdx = i;
+				}
+			}
+			Photo secondV = photosV.remove(maxIdx);
+			Photo newPhoto = new Photo();
+			newPhoto.index = photo.index;
+			newPhoto.indexOfSecondV = secondV.index;
+			newPhoto.tags = new ArrayList<>(tags);
+			result.add(newPhoto);
+		}
+		return result;
+	}
+
+	private Set<String> getUnionSize(Photo p1, Photo p2) {
+		Set<String> p1Tags = new HashSet<>(p1.tags);
+		p1Tags.addAll(p2.tags);
+		return p1Tags;
+	}
 }
