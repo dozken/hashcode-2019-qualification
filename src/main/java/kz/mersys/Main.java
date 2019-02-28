@@ -1,5 +1,6 @@
 package kz.mersys;
 
+import kz.mersys.model.Slideshow;
 import kz.mersys.service.Service;
 
 import java.nio.file.Files;
@@ -19,8 +20,8 @@ class Main {
                     path -> path.toString().endsWith(".txt"))
                     .forEach(path -> {
                         service.readInputFile(path);
-//                        List<Ph> list = service.process();
-//                        service.writeOutputFile(outputPath.resolve(path.getFileName()), list);
+                        Slideshow slideshow = service.process();
+                        service.writeOutputFile(outputPath.resolve(path.getFileName()), slideshow);
                         System.out.println();
                     });
 

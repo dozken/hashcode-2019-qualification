@@ -1,5 +1,7 @@
 package kz.mersys.model;
 
+import java.util.List;
+
 public class Slide {
-    public int photoIndex;
+    public List<Integer> photoIndexes;
 }

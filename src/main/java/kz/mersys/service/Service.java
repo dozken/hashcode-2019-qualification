@@ -2,6 +2,7 @@ package kz.mersys.service;
 
 
 import kz.mersys.model.Photo;
+import kz.mersys.model.Slide;
 import kz.mersys.model.Slideshow;
 
 import java.io.BufferedReader;
@@ -10,7 +11,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static java.util.stream.Collectors.joining;
 
 public class Service {
     private int photoSize;
@@ -52,8 +56,11 @@ public class Service {
 
 
         Slideshow slideshow = new Slideshow();
-        slideshow.slideCount = 3;
+        slideshow.slideCount = 1;
         slideshow.slides = new ArrayList<>();
+        Slide slide = new Slide();
+        slide.photoIndexes = Arrays.asList(1, 2, 3);
+        slideshow.slides.add(slide);
 
 
         //TODO some really cool algorithm
@@ -71,15 +78,14 @@ public class Service {
         }
 
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-            //TODO write data to output file
-            if (items != null) {
-                writer.write(String.format("%d", items.size()));
+            writer.write(String.format("%d", slideshow.slideCount));
+            writer.newLine();
+            for(Slide slide: slideshow.slides){
+                String collectedIndexes = slide.photoIndexes.stream().map(x -> x.toString()).collect(joining(" "));
+                writer.write(String.format("%s", collectedIndexes));
                 writer.newLine();
-                for (Object item : items) {
-                    writer.write(item.toString());
-                    writer.newLine();
-                }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
