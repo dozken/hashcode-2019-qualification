@@ -150,7 +150,7 @@ public class Service {
         int interestIndex = 0;
         long score = 0;
 
-        while (!photos.isEmpty()||photos.size()!=2) {
+        while (!photos.isEmpty()|| photos.size() != 2) {
             for (int i = 0; i < photos.size(); i++) {
                 int interestFactor = getInterestFactor(photo, photos.get(i));
                 if (maxInterestFactor < interestFactor) {
@@ -168,7 +168,7 @@ public class Service {
                     .findFirst();
             if (first.isPresent()) {
                 photo = first.get();
-                photos.removeIf(p-> p.index == finalInterestIndex);
+                photos.removeIf(p -> p.index == finalInterestIndex);
 
                 Slide slide = new Slide();
                 slide.photoIndexes.add(interestIndex);
