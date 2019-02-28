@@ -1,9 +1,6 @@
 package kz.mersys.service;
 
-
-import kz.mersys.model.Photo;
-import kz.mersys.model.Slide;
-import kz.mersys.model.Slideshow;
+import static java.util.stream.Collectors.joining;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,91 +9,98 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import static java.util.stream.Collectors.joining;
+import kz.mersys.model.Photo;
+import kz.mersys.model.Slide;
+import kz.mersys.model.Slideshow;
 
 public class Service {
-    private int photoSize;
-    private List<Photo> photos = new ArrayList<>();
+	private int photoSize;
+	private List<Photo> photos = new ArrayList<>();
 
-    public void readInputFile(Path path) {
-        System.out.printf("readInputFile: %s \n", path.getFileName().toString());
+	public void readInputFile(Path path) {
+		System.out.printf("readInputFile: %s \n", path.getFileName().toString());
 
-        //TODO read input file and assign constraints
-        try (BufferedReader br = Files.newBufferedReader(path)) {
-            photoSize = Integer.parseInt(br.readLine());
+		// TODO read input file and assign constraints
+		try (BufferedReader br = Files.newBufferedReader(path)) {
+			photoSize = Integer.parseInt(br.readLine());
 
-            for (int i = 0; i < photoSize; i++) {
-                String[] line = br.readLine().split(" ");
-                Photo photo = new Photo();
-                photo.orientation = line[0];
-                photo.tagSize = Integer.parseInt(line[1]);
-                List<String> tags = new ArrayList<>();
+			for (int i = 0; i < photoSize; i++) {
+				String[] line = br.readLine().split(" ");
+				Photo photo = new Photo();
+				photo.orientation = line[0];
+				photo.tagSize = Integer.parseInt(line[1]);
+				List<String> tags = new ArrayList<>();
 
-                for (int j = 0; j < photo.tagSize; j++) {
-                    tags.add(line[2 + j]);
-                }
+				for (int j = 0; j < photo.tagSize; j++) {
+					tags.add(line[2 + j]);
+				}
 
-                photo.tags = tags;
+				photo.tags = tags;
 
-                photos.add(photo);
-            }
+				photos.add(photo);
+			}
 
-            photos.forEach(System.out::println);
+			photos.forEach(System.out::println);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
+	public Slideshow process() {
+		System.out.printf("process: \n");
 
-    public Slideshow process() {
-        System.out.printf("process: \n");
+		Slideshow slideshow = new Slideshow();
+		slideshow.slideCount = 1;
+		slideshow.slides = new ArrayList<>();
+		Slide slide = new Slide();
+		slide.photoIndexes = Arrays.asList(1, 2, 3);
+		slideshow.slides.add(slide);
 
+		// TODO some really cool algorithm
 
-        Slideshow slideshow = new Slideshow();
-        slideshow.slideCount = 1;
-        slideshow.slides = new ArrayList<>();
-        Slide slide = new Slide();
-        slide.photoIndexes = Arrays.asList(1, 2, 3);
-        slideshow.slides.add(slide);
+		return slideshow;
+	}
 
+	public void writeOutputFile(Path path, Slideshow slideshow) {
+		System.out.printf("writeOutputFile: %s \n", path.getFileName().toString());
 
-        //TODO some really cool algorithm
+		try {
+			Files.createDirectories(path.getParent());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-        return slideshow;
-    }
+		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+			writer.write(String.format("%d", slideshow.slideCount));
+			writer.newLine();
+			for (Slide slide : slideshow.slides) {
+				String collectedIndexes = slide.photoIndexes.stream().map(x -> x.toString()).collect(joining(" "));
+				writer.write(String.format("%s", collectedIndexes));
+				writer.newLine();
+			}
 
-    public void writeOutputFile(Path path, Slideshow slideshow) {
-        System.out.printf("writeOutputFile: %s \n", path.getFileName().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-        try {
-            Files.createDirectories(path.getParent());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+	public int getInterestFactor(Photo p1, Photo p2) {
+		int intersectionSize = 0;
+		Set<String> p1Tags = new HashSet<>(p1.tags);
+		for (String tag : p2.tags) {
+			if (!p1Tags.add(tag)) {
+				intersectionSize++;
+			}
+		}
+		int minInterval = Math.min(p1.tagSize - intersectionSize, p2.tagSize - intersectionSize);
+		return Math.min(minInterval, intersectionSize);
+	}
 
-        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-            writer.write(String.format("%d", slideshow.slideCount));
-            writer.newLine();
-            for(Slide slide: slideshow.slides){
-                String collectedIndexes = slide.photoIndexes.stream().map(x -> x.toString()).collect(joining(" "));
-                writer.write(String.format("%s", collectedIndexes));
-                writer.newLine();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public long getInterestFactor(Photo p1, Photo p2) {
-    	// TODO
-    	return 0;
-    }
-
-
-    // horizontal get max interest point
+	// horizontal get max interest point
 
 }
