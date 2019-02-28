@@ -168,7 +168,8 @@ public class Service {
             slideshow.slides.add(slide);
             
             photo = nextPhoto;
-            System.out.println(score);
+            if (photo.orientation.equals("V"))
+            	System.out.println(score);
         }
         System.out.println(score);
         return slideshow;
@@ -178,34 +179,43 @@ public class Service {
 		Slideshow slideshow = new Slideshow();
 		List<Photo> photosH = photos.stream().filter(x -> x.orientation.equals("H")).collect(toList());
 		List<Photo> photosDoubleV = getPhotosDoubleV();
-
+		photosH.addAll(photosDoubleV);
+		photos = photosH;
+		
 		Photo photo = photos.remove(0);
-		Slide firstSlide = new Slide();
-		firstSlide.photoIndexes.add(0);
-		slideshow.slides.add(firstSlide);
+        Slide firstSlide = new Slide();
+        firstSlide.photoIndexes.add(0);
+        slideshow.slides.add(firstSlide);
 
-		int maxInterestFactor = 0;
-		int interestIndex = 0;
-		long score = 0;
+        long score = 0;
 
-		while (photos.isEmpty()) {
-			for (int i = 0; i < photos.size(); i++) {
-				int interestFactor = getInterestFactor(photo, photos.get(i));
-				if (maxInterestFactor < interestFactor) {
-					maxInterestFactor = Math.max(maxInterestFactor, interestFactor);
-					interestIndex = i;
-				}
-			}
-
-			score = maxInterestFactor;
-			photo = photos.remove(interestIndex);
-
-			Slide slide = new Slide();
-			slide.photoIndexes.add(interestIndex);
-			slideshow.slides.add(slide);
-		}
-
-		return slideshow;
+        while (!photos.isEmpty()) {
+        	int maxInterestFactor = -1;
+        	int maxIdx = -1;
+            for (int i = 0; i < photos.size(); i++) {
+                int interestFactor = getInterestFactor(photo, photos.get(i));
+                if (maxInterestFactor < interestFactor) {
+                    maxInterestFactor = interestFactor;
+                    maxIdx = i;
+                }
+            }
+            if (maxIdx < 0)
+            	System.out.println();
+            Photo nextPhoto = photos.remove(maxIdx);
+            score += maxInterestFactor;
+            
+            Slide slide = new Slide();
+            slide.photoIndexes.add(nextPhoto.index);
+            if (nextPhoto.orientation.equals("V")) {
+                slide.photoIndexes.add(nextPhoto.indexOfSecondV);
+            }
+            slideshow.slides.add(slide);
+            
+            photo = nextPhoto;
+            System.out.println(score);
+        }
+        System.out.println(score);
+        return slideshow;
 	}
 
 	private List<Photo> getPhotosDoubleV() {
@@ -228,6 +238,8 @@ public class Service {
 			newPhoto.index = photo.index;
 			newPhoto.indexOfSecondV = secondV.index;
 			newPhoto.tags = new ArrayList<>(tags);
+			newPhoto.orientation = "V";
+			newPhoto.tagSize = tags.size();
 			result.add(newPhoto);
 		}
 		return result;
