@@ -79,5 +79,10 @@ public class Service {
             e.printStackTrace();
         }
     }
+    
+    public long getInterestFactor(Photo p1, Photo p2) {
+    	// TODO
+    	return 0;
+    }
 
 }
