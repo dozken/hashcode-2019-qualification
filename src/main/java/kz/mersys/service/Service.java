@@ -10,11 +10,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -26,7 +22,7 @@ public class Service {
 
 
     public void readInputFile(Path path) {
-        System.out.printf("readInputFile: %s \n", path.getFileName().toString());
+//        System.out.printf("readInputFile: %s \n", path.getFileName().toString());
 
         //TODO read input file and assign constraints
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -50,7 +46,7 @@ public class Service {
                 origPhotos.add(photo);
             }
 
-            photos.forEach(System.out::println);
+//            photos.forEach(System.out::println);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,7 +55,7 @@ public class Service {
 
 
     public Slideshow process() {
-        System.out.printf("process: \n");
+//        System.out.printf("process: \n");
 
 
         Slideshow slideshow = new Slideshow();
@@ -76,7 +72,7 @@ public class Service {
     }
 
     public void writeOutputFile(Path path, Slideshow slideshow) {
-        System.out.printf("writeOutputFile: %s \n", path.getFileName().toString());
+//        System.out.printf("writeOutputFile: %s \n", path.getFileName().toString());
 
         try {
             Files.createDirectories(path.getParent());
@@ -87,32 +83,32 @@ public class Service {
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             writer.write(String.format("%d", slideshow.slides.size()));
             writer.newLine();
-            for(Slide slide: slideshow.slides){
+            for (Slide slide : slideshow.slides) {
                 String collectedIndexes = slide.photoIndexes.stream().map(x -> x.toString()).collect(joining(" "));
                 writer.write(String.format("%s", collectedIndexes));
                 writer.newLine();
             }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public int getInterestFactor(Photo p1, Photo p2) {
-		int intersectionSize = 0;
-		Set<String> p1Tags = new HashSet<>(p1.tags);
-		for (String tag : p2.tags) {
-			if (!p1Tags.add(tag)) {
-				intersectionSize++;
-			}
-		}
-		int minInterval = Math.min(p1.tagSize - intersectionSize, p2.tagSize - intersectionSize);
-		return Math.min(minInterval, intersectionSize);
-	}
+    public int getInterestFactor(Photo p1, Photo p2) {
+        int intersectionSize = 0;
+        Set<String> p1Tags = new HashSet<>(p1.tags);
+        for (String tag : p2.tags) {
+            if (!p1Tags.add(tag)) {
+                intersectionSize++;
+            }
+        }
+        int minInterval = Math.min(p1.tagSize - intersectionSize, p2.tagSize - intersectionSize);
+        return Math.min(minInterval, intersectionSize);
+    }
 
     // horizontal get max interest point
 
-    public Slideshow prepareSlideshow(){
+    public Slideshow prepareSlideshow() {
         Slideshow slideshow = new Slideshow();
 
         List<Photo> vp = photos.stream().filter(x -> x.orientation.equals("H")).collect(toList());
@@ -126,9 +122,9 @@ public class Service {
         slideshow.slides = new ArrayList<>();
         for (int i = 0; i < vp.size(); i++) {
             Slide slide = new Slide();
-            for (int j = 0; j < vp.size() && !usedIndex.contains(j) && j!=i ; j++) {
+            for (int j = 0; j < vp.size() && !usedIndex.contains(j) && j != i; j++) {
                 long interestFactor = getInterestFactor(vp.get(i), vp.get(j));
-                if(maxInterestFactor < interestFactor) {
+                if (maxInterestFactor < interestFactor) {
                     maxInterestFactor = Math.max(maxInterestFactor, interestFactor);
                     interestIndex = j;
                     usedIndex.add(interestIndex);
@@ -141,7 +137,7 @@ public class Service {
         return slideshow;
     }
 
-    public Slideshow prepareSlideshowB(){
+    public Slideshow prepareSlideshowB() {
         Slideshow slideshow = new Slideshow();
         photos = photos.stream().filter(x -> x.orientation.equals("H")).collect(toList());
 
@@ -154,21 +150,31 @@ public class Service {
         int interestIndex = 0;
         long score = 0;
 
-        while(photos.isEmpty()){
+        while (!photos.isEmpty()||photos.size()!=2) {
             for (int i = 0; i < photos.size(); i++) {
                 int interestFactor = getInterestFactor(photo, photos.get(i));
-                if(maxInterestFactor < interestFactor) {
+                if (maxInterestFactor < interestFactor) {
                     maxInterestFactor = Math.max(maxInterestFactor, interestFactor);
-                    interestIndex = i;
+                    interestIndex = photos.get(i).index;
                 }
             }
 
-            score = maxInterestFactor;
-            photo = photos.remove(interestIndex);
+            score += maxInterestFactor;
 
-            Slide slide = new Slide();
-            slide.photoIndexes.add(interestIndex);
-            slideshow.slides.add(slide);
+            int finalInterestIndex = interestIndex;
+
+            Optional<Photo> first = photos.stream()
+                    .filter(photo1 -> photo1.index == finalInterestIndex)
+                    .findFirst();
+            if (first.isPresent()) {
+                photo = first.get();
+                photos.removeIf(p-> p.index == finalInterestIndex);
+
+                Slide slide = new Slide();
+                slide.photoIndexes.add(interestIndex);
+                slideshow.slides.add(slide);
+            }
+
         }
 
         return slideshow;
