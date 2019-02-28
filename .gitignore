@@ -26,3 +26,7 @@ hs_err_pid*
 /target/
 /.classpath
 /.project
+.vscode/launch.json
+.settings/org.eclipse.jdt.apt.core.prefs
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.m2e.core.prefs
